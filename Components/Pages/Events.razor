@@ -1,0 +1,53 @@
+@page "/events"
+@inject EventService EventService
+
+<PageTitle>Discover Events — Eventify</PageTitle>
+
+<div class="container-fluid page-container">
+    <div class="page-heading">
+        <div>
+            <h1>Discover Events</h1>
+            <p>Browse what's happening on campus.</p>
+        </div>
+        <a class="btn btn-dark" href="/organizer/create">+ Create event</a>
+    </div>
+
+    <div class="filter-bar">
+        <input class="form-control" placeholder="Search events..." @bind="search" />
+        <select class="form-select" @bind="category">
+            <option value="">All categories</option>
+            <option>Technology</option>
+            <option>Career</option>
+            <option>Sports</option>
+            <option>Music</option>
+            <option>Entrepreneurship</option>
+        </select>
+    </div>
+
+    <div class="row g-4 mt-1">
+        @foreach (var item in FilteredEvents)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="event-card h-100">
+                    <span class="event-tag">@item.Category</span>
+                    <h3>@item.Title</h3>
+                    <p>@item.Description</p>
+                    <div class="event-meta">@item.Date.ToString("ddd, dd MMM yyyy") · @item.Location</div>
+                    <a class="btn btn-outline-dark mt-3" href="/events/@item.Id">Details</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string search = "";
+    private string category = "";
+
+    private IEnumerable<EventItem> FilteredEvents =>
+        EventService.GetSampleEvents().Where(e =>
+            (string.IsNullOrWhiteSpace(search) ||
+             e.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+             e.Description.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(category) || e.Category == category));
+}

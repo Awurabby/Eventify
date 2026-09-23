@@ -1,0 +1,63 @@
+@page "/organizer/create"
+
+<PageTitle>Create Event — Eventify</PageTitle>
+
+<div class="container page-container">
+    <a href="/organizer" class="text-decoration-none">← Organizer dashboard</a>
+    <div class="detail-card mt-3">
+        <h1>Create Event</h1>
+        <p class="text-muted">This starter form is ready to be connected to EF Core.</p>
+
+        <div class="row g-3 mt-2">
+            <div class="col-12">
+                <label class="form-label">Event title</label>
+                <input class="form-control" @bind="title" placeholder="e.g. Women in Technology Forum" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select class="form-select" @bind="category">
+                    <option>Technology</option>
+                    <option>Career</option>
+                    <option>Sports</option>
+                    <option>Music</option>
+                    <option>Entrepreneurship</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Location</label>
+                <input class="form-control" @bind="location" placeholder="Venue" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-control" @bind="date" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Capacity</label>
+                <input type="number" class="form-control" @bind="capacity" />
+            </div>
+            <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="4" @bind="description"></textarea>
+            </div>
+        </div>
+
+        <button class="btn btn-dark mt-4" @onclick="Submit">Publish event</button>
+
+        @if (submitted)
+        {
+            <div class="alert alert-success mt-3">Event draft captured. Connect this form to EventService/EF Core next.</div>
+        }
+    </div>
+</div>
+
+@code {
+    private string title = "";
+    private string category = "Technology";
+    private string location = "";
+    private DateTime date = DateTime.Today.AddDays(7);
+    private int capacity = 100;
+    private string description = "";
+    private bool submitted;
+
+    private void Submit() => submitted = true;
+}

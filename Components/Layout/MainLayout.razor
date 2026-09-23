@@ -1,0 +1,25 @@
+@inherits LayoutComponentBase
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">Eventify</div>
+        <div class="brand-subtitle">Campus events, simplified.</div>
+
+        <nav class="nav flex-column mt-4">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Dashboard</NavLink>
+            <NavLink class="nav-link" href="/events">Discover Events</NavLink>
+            <NavLink class="nav-link" href="/my-registrations">My Registrations</NavLink>
+            <NavLink class="nav-link" href="/organizer">Organizer</NavLink>
+            <NavLink class="nav-link" href="/profile">My Interests</NavLink>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <span class="text-muted">University Campus</span>
+            <span class="demo-badge">MVP Demo</span>
+        </header>
+
+        @Body
+    </main>
+</div>

@@ -1,0 +1,39 @@
+@page "/my-registrations"
+@inject RegistrationService Registrations
+@inject EventService Events
+
+<PageTitle>My Registrations — Eventify</PageTitle>
+
+<div class="container-fluid page-container">
+    <h1>My Registrations</h1>
+    <p class="text-muted">Events you've registered for.</p>
+
+    @if (!MyEvents.Any())
+    {
+        <div class="empty-state">
+            <h3>No registrations yet</h3>
+            <p>Explore events and register for something interesting.</p>
+            <a href="/events" class="btn btn-dark">Discover events</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var e in MyEvents)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <div class="event-card">
+                        <span class="event-tag">@e.Category</span>
+                        <h3>@e.Title</h3>
+                        <p>@e.Date.ToString("ddd, dd MMM yyyy") · @e.Location</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private IEnumerable<EventItem> MyEvents => 
+        Events.GetSampleEvents().Where(e => Registrations.IsRegistered("demo-student", e.Id));
+}

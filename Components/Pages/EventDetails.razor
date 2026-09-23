@@ -1,0 +1,53 @@
+@page "/events/{Id:int}"
+@inject EventService Events
+@inject RegistrationService Registrations
+
+<PageTitle>Event Details — Eventify</PageTitle>
+
+<div class="container page-container">
+    @if (Event is null)
+    {
+        <div class="alert alert-warning">Event not found.</div>
+    }
+    else
+    {
+        <a href="/events" class="text-decoration-none">← Back to events</a>
+        <div class="detail-card mt-3">
+            <span class="event-tag">@Event.Category</span>
+            <h1>@Event.Title</h1>
+            <p class="lead">@Event.Description</p>
+
+            <div class="detail-grid">
+                <div><strong>Date</strong><span>@Event.Date.ToString("dddd, dd MMMM yyyy")</span></div>
+                <div><strong>Location</strong><span>@Event.Location</span></div>
+                <div><strong>Organizer</strong><span>@Event.Organizer</span></div>
+                <div><strong>Capacity</strong><span>@Event.Capacity attendees</span></div>
+            </div>
+
+            <button class="btn btn-dark btn-lg" @onclick="Register">Register for event</button>
+
+            @if (!string.IsNullOrWhiteSpace(message))
+            {
+                <div class="alert alert-success mt-3">@message</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private EventItem? Event;
+    private string message = "";
+
+    protected override void OnParametersSet()
+    {
+        Event = Events.GetSampleEvents().FirstOrDefault(e => e.Id == Id);
+    }
+
+    private void Register()
+    {
+        if (Event is null) return;
+        Registrations.Register("demo-student", Event.Id);
+        message = $"You're registered for {Event.Title}.";
+    }
+}

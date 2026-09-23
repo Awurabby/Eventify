@@ -1,0 +1,39 @@
+@page "/"
+@inject EventService Events
+
+<PageTitle>Eventify — Dashboard</PageTitle>
+
+<div class="container-fluid page-container">
+    <div class="hero-card">
+        <div>
+            <span class="eyebrow">WELCOME TO EVENTIFY</span>
+            <h1>Find events that fit your interests.</h1>
+            <p>Discover academic, social, professional and club events happening around campus.</p>
+            <a class="btn btn-light" href="/events">Explore events</a>
+        </div>
+        <div class="hero-icon">✦</div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+        <div>
+            <h2 class="section-title">Recommended for you</h2>
+            <p class="text-muted mb-0">Starter recommendations based on your selected interests.</p>
+        </div>
+        <a href="/events" class="btn btn-outline-dark">View all</a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var item in Events.GetSampleEvents().Take(3))
+        {
+            <div class="col-md-4">
+                <div class="event-card h-100">
+                    <span class="event-tag">@item.Category</span>
+                    <h3>@item.Title</h3>
+                    <p>@item.Description</p>
+                    <div class="event-meta">@item.Date.ToString("ddd, dd MMM yyyy") · @item.Location</div>
+                    <a class="btn btn-dark mt-3" href="/events/@item.Id">View event</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

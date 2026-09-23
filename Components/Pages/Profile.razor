@@ -1,0 +1,45 @@
+@page "/profile"
+
+<PageTitle>My Interests — Eventify</PageTitle>
+
+<div class="container page-container">
+    <h1>My Interests</h1>
+    <p class="text-muted">These interests will drive your event recommendations.</p>
+
+    <div class="interest-grid">
+        @foreach (var interest in interests)
+        {
+            <button class="interest-pill @(selected.Contains(interest) ? "selected" : "")"
+                    @onclick="() => Toggle(interest)">
+                @(selected.Contains(interest) ? "✓ " : "")@interest
+            </button>
+        }
+    </div>
+
+    <button class="btn btn-dark mt-4" @onclick="Save">Save interests</button>
+
+    @if (saved)
+    {
+        <div class="alert alert-success mt-3">Interests saved for this demo session.</div>
+    }
+</div>
+
+@code {
+    private readonly string[] interests =
+        ["Technology", "Sports", "Music", "Entrepreneurship", "Career", "Academic", "Arts", "Leadership"];
+
+    private readonly HashSet<string> selected =
+        ["Technology", "Career"];
+
+    private bool saved;
+
+    private void Toggle(string interest)
+    {
+        if (!selected.Add(interest))
+            selected.Remove(interest);
+
+        saved = false;
+    }
+
+    private void Save() => saved = true;
+}
