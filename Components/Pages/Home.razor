@@ -1,5 +1,5 @@
 @page "/"
-@inject EventService Events
+@inject EventService EventService
 
 <PageTitle>Eventify — Dashboard</PageTitle>
 
@@ -23,7 +23,7 @@
     </div>
 
     <div class="row g-4">
-        @foreach (var item in Events.GetSampleEvents().Take(3))
+        @foreach (var item in events.Take(3))
         {
             <div class="col-md-4">
                 <div class="event-card h-100">
@@ -37,3 +37,12 @@
         }
     </div>
 </div>
+
+@code {
+    private List<EventItem> events = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        events = await EventService.GetEventsAsync();
+    }
+}
