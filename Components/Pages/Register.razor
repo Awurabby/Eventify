@@ -1,0 +1,53 @@
+@page "/register"
+@inject AntiforgeryStateProvider AntiforgeryStateProvider
+
+<PageTitle>Register</PageTitle>
+
+<div class="container py-5" style="max-width: 420px;">
+    <h1>Create an account</h1>
+
+    @if (!string.IsNullOrEmpty(Error))
+    {
+        <div class="alert alert-danger">@Error</div>
+    }
+
+    <form method="post" action="/account/register">
+        <input type="hidden" name="__RequestVerificationToken" value="@GetAntiforgeryToken()" />
+
+        <div class="mb-3">
+            <label class="form-label">Full name</label>
+            <input class="form-control" type="text" name="fullName" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input class="form-control" type="password" name="password" required minlength="6" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">I am a...</label>
+            <select class="form-select" name="role">
+                <option value="Student">Student</option>
+                <option value="Organizer">Organizer</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+
+    <p class="mt-3">
+        Already have an account? <a href="/login">Log in here</a>.
+    </p>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? Error { get; set; }
+
+    private string? GetAntiforgeryToken() => AntiforgeryStateProvider.GetAntiforgeryToken()?.Value;
+}
