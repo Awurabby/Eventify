@@ -1,25 +1,66 @@
 @inherits LayoutComponentBase
 
 <div class="app-shell">
-    <aside class="sidebar">
-        <div class="brand">Eventify</div>
-        <div class="brand-subtitle">Campus events, simplified.</div>
 
-        <nav class="nav flex-column mt-4">
-            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Dashboard</NavLink>
-            <NavLink class="nav-link" href="/events">Discover Events</NavLink>
-            <NavLink class="nav-link" href="/my-registrations">My Registrations</NavLink>
-            <NavLink class="nav-link" href="/organizer">Organizer</NavLink>
-            <NavLink class="nav-link" href="/profile">My Interests</NavLink>
+    <aside class="sidebar">
+
+        <div class="brand-section">
+            <div class="brand">Eventify</div>
+            <div class="brand-subtitle">
+                Campus events, simplified.
+            </div>
+        </div>
+
+        <nav class="nav flex-column">
+
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <span>Dashboard</span>
+            </NavLink>
+
+            <NavLink class="nav-link" href="/events">
+                <span>Discover Events</span>
+            </NavLink>
+
+            <NavLink class="nav-link" href="/my-registrations">
+                <span>My Registrations</span>
+            </NavLink>
+
+            <NavLink class="nav-link" href="/profile">
+                <span>My Profile</span>
+            </NavLink>
+
+            <NavLink class="nav-link" href="/organizer">
+                <span>Organizer</span>
+            </NavLink>
+
         </nav>
+
     </aside>
 
+
     <main class="main-content">
+
         <header class="topbar">
-            <span class="text-muted">University Campus</span>
-            <span class="demo-badge">MVP Demo</span>
+
+            <div>
+                <span class="text-muted">
+                    University of Ghana
+                </span>
+            </div>
+
+            <div class="topbar-brand">
+                Eventify
+            </div>
+
         </header>
 
-        @Body
+
+        <section class="page-content">
+
+            @Body
+
+        </section>
+
     </main>
+
 </div>

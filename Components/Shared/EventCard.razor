@@ -1,0 +1,41 @@
+@using Eventify.Models
+
+<div class="event-card">
+
+    <div class="event-card-category">
+        @Event.Category
+    </div>
+
+    <h3 class="event-card-title">
+        @Event.Title
+    </h3>
+
+    <p class="event-card-description">
+        @Event.Description
+    </p>
+
+    <div class="event-card-details">
+
+        <div>
+            @Event.Date.ToString("ddd, dd MMM yyyy")
+        </div>
+
+        <div>
+            @Event.Location
+        </div>
+
+    </div>
+
+    <a class="btn btn-outline-dark mt-3"
+       href="/events/@Event.Id">
+        View details
+    </a>
+
+</div>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public EventItem Event { get; set; } = null!;
+
+}
