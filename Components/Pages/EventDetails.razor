@@ -1,6 +1,6 @@
 @page "/events/{Id:int}"
-@inject EventService Events
-@inject RegistrationService Registrations
+@inject EventService EventService
+@inject RegistrationService RegistrationService
 
 <PageTitle>Event Details — Eventify</PageTitle>
 
@@ -39,15 +39,19 @@
     private EventItem? Event;
     private string message = "";
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        Event = Events.GetSampleEvents().FirstOrDefault(e => e.Id == Id);
+        Event = await EventService.GetEventByIdAsync(Id);
     }
 
-    private void Register()
+    private async Task Register()
     {
         if (Event is null) return;
-        Registrations.Register("demo-student", Event.Id);
-        message = $"You're registered for {Event.Title}.";
+
+        var registered = await RegistrationService.RegisterAsync(1, Event.Id);
+
+        message = registered
+            ? $"You're registered for {Event.Title}."
+            : $"You're already registered for {Event.Title}.";
     }
 }

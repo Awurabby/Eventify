@@ -43,9 +43,15 @@
 @code {
     private string search = "";
     private string category = "";
+    private List<EventItem> events = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        events = await EventService.GetEventsAsync();
+    }
 
     private IEnumerable<EventItem> FilteredEvents =>
-        EventService.GetSampleEvents().Where(e =>
+        events.Where(e =>
             (string.IsNullOrWhiteSpace(search) ||
              e.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
              e.Description.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
