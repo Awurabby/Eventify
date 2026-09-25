@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
 
 <div class="app-shell">
 
@@ -29,9 +31,21 @@
                 <span>My Profile</span>
             </NavLink>
 
-            <NavLink class="nav-link" href="/organizer">
-                <span>Organizer</span>
-            </NavLink>
+            @if (CurrentUser.Role == "Organizer")
+{
+    <NavLink class="nav-link" href="/organizer"><span>Organizer</span></NavLink>
+}
+            @if (CurrentUser.IsAuthenticated)
+{
+    <a class="nav-link" href="#" @onclick="Logout" @onclick:preventDefault>
+        <span>Log out (@CurrentUser.DisplayName)</span>
+    </a>
+}
+else
+{
+    <NavLink class="nav-link" href="/login"><span>Log In</span></NavLink>
+    <NavLink class="nav-link" href="/signup"><span>Sign Up</span></NavLink>
+}
 
         </nav>
 
@@ -64,3 +78,11 @@
     </main>
 
 </div>
+
+@code {
+    private async Task Logout()
+    {
+        await CurrentUser.LogoutAsync();
+        Nav.NavigateTo("/");
+    }
+}

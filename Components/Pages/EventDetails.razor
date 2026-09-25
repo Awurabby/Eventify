@@ -1,6 +1,8 @@
 @page "/events/{Id:int}"
 @inject EventService EventService
 @inject RegistrationService RegistrationService
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
 
 <PageTitle>Event Details — Eventify</PageTitle>
 
@@ -45,13 +47,19 @@
     }
 
     private async Task Register()
+{
+    if (Event is null) return;
+
+    if (!CurrentUser.IsAuthenticated)
     {
-        if (Event is null) return;
-
-        var registered = await RegistrationService.RegisterAsync(1, Event.Id);
-
-        message = registered
-            ? $"You're registered for {Event.Title}."
-            : $"You're already registered for {Event.Title}.";
+        Nav.NavigateTo($"/login?returnUrl=/events/{Event.Id}");
+        return;
     }
+
+    var registered = await RegistrationService.RegisterAsync(CurrentUser.UserId!.Value, Event.Id);
+
+    message = registered
+        ? $"You're registered for {Event.Title}."
+        : $"You're already registered for {Event.Title}.";
+}
 }
