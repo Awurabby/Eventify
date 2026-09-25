@@ -1,6 +1,8 @@
 @page "/organizer"
+@inject ICurrentUserService CurrentUser
 @inject EventService EventService
 @inject RegistrationService RegistrationService
+@inject NavigationManager Nav
 
 <PageTitle>Organizer Dashboard — Eventify</PageTitle>
 
@@ -51,6 +53,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (!CurrentUser.IsAuthenticated || CurrentUser.Role != "Organizer")
+        {
+            Nav.NavigateTo("/login?returnUrl=/organizer");
+            return;
+        }
+
         var events = await EventService.GetEventsAsync();
 
         totalEvents = events.Count;

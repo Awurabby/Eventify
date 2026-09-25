@@ -69,7 +69,7 @@
 
     protected override void OnInitialized()
     {
-        if (!CurrentUser.IsAuthenticated)
+        if (!CurrentUser.IsAuthenticated || CurrentUser.Role != "Organizer")
         {
             Nav.NavigateTo("/login?returnUrl=/organizer/create");
         }

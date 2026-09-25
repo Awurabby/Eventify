@@ -65,4 +65,6 @@ public class RegistrationService
         await using var db = await _factory.CreateDbContextAsync();
         return await db.Registrations.CountAsync(r => r.EventId == eventId);
     }
+
+    
 }
