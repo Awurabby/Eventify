@@ -2,11 +2,24 @@ namespace Eventify.Services;
 
 public class StubCurrentUserService : ICurrentUserService
 {
-    // TEMPORARY — flip to true to preview the logged-in experience
-    // before the real auth branch is merged.
-    private const bool SimulateLoggedIn = false;
+    public bool IsAuthenticated { get; private set; }
+    public int? UserId { get; private set; }
+    public string? DisplayName { get; private set; }
 
-    public bool IsAuthenticated => SimulateLoggedIn;
-    public int? UserId => SimulateLoggedIn ? 1 : null;
-    public string? DisplayName => SimulateLoggedIn ? "Demo Student" : null;
+    // Stub-only — lets us test the redirect flow before real auth exists.
+    // The Login.razor stub page calls this directly.
+    public void SimulateLogin()
+    {
+        IsAuthenticated = true;
+        UserId = 1;
+        DisplayName = "Demo Student";
+    }
+
+    public Task LogoutAsync()
+    {
+        IsAuthenticated = false;
+        UserId = null;
+        DisplayName = null;
+        return Task.CompletedTask;
+    }
 }

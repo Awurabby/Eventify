@@ -1,4 +1,6 @@
 @page "/organizer/create"
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
 
 <PageTitle>Create Event — Eventify</PageTitle>
 
@@ -60,4 +62,11 @@
     private bool submitted;
 
     private void Submit() => submitted = true;
+    protected override void OnInitialized()
+{
+    if (!CurrentUser.IsAuthenticated)
+    {
+        Nav.NavigateTo("/login?returnUrl=/organizer/create");
+    }
+}
 }
