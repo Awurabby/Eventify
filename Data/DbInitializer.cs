@@ -8,7 +8,7 @@ public static class DbInitializer
     public static async Task InitializeAsync(IDbContextFactory<EventifyDbContext> factory)
     {
         await using var db = await factory.CreateDbContextAsync();
-        await db.Database.EnsureCreatedAsync();
+        await db.Database.MigrateAsync();
 
         if (!await db.Interests.AnyAsync())
         {
