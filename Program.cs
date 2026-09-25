@@ -41,6 +41,8 @@ builder.Services.AddScoped<AuthService>();   // NEW
 
 builder.Services.AddSignalR();
 
+builder.Services.AddScoped<ICurrentUserService, StubCurrentUserService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
