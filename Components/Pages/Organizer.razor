@@ -1,4 +1,6 @@
 @page "/organizer"
+@inject EventService EventService
+@inject RegistrationService RegistrationService
 
 <PageTitle>Organizer Dashboard — Eventify</PageTitle>
 
@@ -11,16 +13,60 @@
         <a class="btn btn-dark" href="/organizer/create">+ Create event</a>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-4"><div class="stat-card"><span>Published events</span><strong>6</strong></div></div>
-        <div class="col-md-4"><div class="stat-card"><span>Total registrations</span><strong>184</strong></div></div>
-        <div class="col-md-4"><div class="stat-card"><span>Upcoming events</span><strong>3</strong></div></div>
-    </div>
+    @if (loading)
+    {
+        <p class="text-muted">Loading dashboard...</p>
+    }
+    else
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="stat-card"><span>Published events</span><strong>@totalEvents</strong></div></div>
+            <div class="col-md-4"><div class="stat-card"><span>Total registrations</span><strong>@totalRegistrations</strong></div></div>
+            <div class="col-md-4"><div class="stat-card"><span>Upcoming events</span><strong>@upcomingEvents</strong></div></div>
+        </div>
 
-    <div class="detail-card">
-        <h3>Next event</h3>
-        <p class="mb-1"><strong>Campus Tech Meetup</strong></p>
-        <p class="text-muted">Friday · New Lecture Theatre · 42 registrations</p>
-        <a class="btn btn-outline-dark" href="/organizer/create">Manage event</a>
-    </div>
+        <div class="detail-card">
+            <h3>Next event</h3>
+            @if (nextEvent is not null)
+            {
+                <p class="mb-1"><strong>@nextEvent.Title</strong></p>
+                <p class="text-muted">@nextEvent.Date.ToString("dddd") · @nextEvent.Location · @nextEventRegistrations registrations</p>
+                <a class="btn btn-outline-dark" href="/events/@nextEvent.Id">View event</a>
+            }
+            else
+            {
+                <p class="text-muted">No upcoming events yet.</p>
+            }
+        </div>
+    }
 </div>
+
+@code {
+    private bool loading = true;
+    private int totalEvents;
+    private int totalRegistrations;
+    private int upcomingEvents;
+    private EventItem? nextEvent;
+    private int nextEventRegistrations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var events = await EventService.GetEventsAsync();
+
+        totalEvents = events.Count;
+        totalRegistrations = await RegistrationService.GetTotalRegistrationCountAsync();
+        upcomingEvents = events.Count(e => e.Date >= DateTime.Today);
+
+        nextEvent = events
+            .Where(e => e.Date >= DateTime.Today)
+            .OrderBy(e => e.Date)
+            .FirstOrDefault();
+
+        if (nextEvent is not null)
+        {
+            nextEventRegistrations = await RegistrationService.GetRegistrationCountForEventAsync(nextEvent.Id);
+        }
+
+        loading = false;
+    }
+}

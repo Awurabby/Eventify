@@ -53,4 +53,16 @@ public class RegistrationService
             .OrderByDescending(r => r.RegisteredAt)
             .ToListAsync();
     }
+
+        public async Task<int> GetTotalRegistrationCountAsync()
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        return await db.Registrations.CountAsync();
+    }
+
+    public async Task<int> GetRegistrationCountForEventAsync(int eventId)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        return await db.Registrations.CountAsync(r => r.EventId == eventId);
+    }
 }
