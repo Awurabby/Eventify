@@ -22,6 +22,18 @@ public static class DbInitializer
 
             await db.SaveChangesAsync();
         }
+        if (!await db.Users.AnyAsync())
+        {
+            db.Users.Add(new User
+                {
+                    Id = 1,
+                    FullName = "Demo Student",
+                    Email = "demo.student@eventify.test",
+                    Role = "Student"
+                });
+
+            await db.SaveChangesAsync();
+        }
 
         if (!await db.Events.AnyAsync())
         {
