@@ -9,5 +9,6 @@ public class EventItem
     public DateTime Date { get; set; }
     public string Location { get; set; } = "";
     public string Organizer { get; set; } = "";
+    public int OrganizerId { get; set; }
     public int Capacity { get; set; }
 }
