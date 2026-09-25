@@ -34,6 +34,15 @@ public class EventsController : ControllerBase
         return eventItem is null ? NotFound() : Ok(eventItem);
     }
 
+    // GET /api/events/recommended
+    [HttpGet("recommended")]
+    [Authorize]
+    public async Task<IActionResult> GetRecommendedEvents()
+    {
+        var events = await _eventService.GetRecommendedEventsAsync(GetCurrentUserId());
+        return Ok(events);
+    }
+
     // POST /api/events/create-event
     [HttpPost("create-event")]
     [Authorize(Roles = "Organizer,Admin")]
@@ -49,7 +58,7 @@ public class EventsController : ControllerBase
             Date = dto.Date,
             Location = dto.Location,
             Capacity = dto.Capacity,
-            OrganizerId = GetCurrentUserId(),
+            // TODO: set OrganizerId = GetCurrentUserId() once that column exists
         };
 
         await _eventService.AddEventAsync(eventItem);
