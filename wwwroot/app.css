@@ -157,3 +157,21 @@ body { margin:0; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFon
     font-size: 13px;
     line-height: 1.8;
 }
+
+.validation-message {
+    color: #e61429;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.form-control.invalid,
+.form-select.invalid {
+    border-color: #e61429;
+}
+
+.form-control.valid,
+.form-select.valid {
+    border-color: #09c66e;
+}

@@ -1,4 +1,7 @@
 @page "/profile"
+@inject ICurrentUserService CurrentUser
+@inject UserService UserService
+@inject NavigationManager Nav
 
 <PageTitle>My Interests — Eventify</PageTitle>
 
@@ -7,7 +10,7 @@
     <p class="text-muted">These interests will drive your event recommendations.</p>
 
     <div class="interest-grid">
-        @foreach (var interest in interests)
+        @foreach (var interest in allInterests)
         {
             <button class="interest-pill @(selected.Contains(interest) ? "selected" : "")"
                     @onclick="() => Toggle(interest)">
@@ -16,22 +19,34 @@
         }
     </div>
 
-    <button class="btn btn-dark mt-4" @onclick="Save">Save interests</button>
+    <button class="btn btn-dark mt-4" @onclick="Save" disabled="@saving">
+        @(saving ? "Saving..." : "Save interests")
+    </button>
 
     @if (saved)
     {
-        <div class="alert alert-success mt-3">Interests saved for this demo session.</div>
+        <div class="alert alert-success mt-3">Interests saved.</div>
     }
 </div>
 
 @code {
-    private readonly string[] interests =
-        ["Technology", "Sports", "Music", "Entrepreneurship", "Career", "Academic", "Arts", "Leadership"];
+    private readonly string[] allInterests =
+        ["Technology", "Career", "Sports", "Music", "Entrepreneurship", "Academic"];
 
-    private readonly HashSet<string> selected =
-        ["Technology", "Career"];
-
+    private HashSet<string> selected = [];
     private bool saved;
+    private bool saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!CurrentUser.IsAuthenticated)
+        {
+            Nav.NavigateTo("/login?returnUrl=/profile");
+            return;
+        }
+
+        selected = (await UserService.GetUserInterestNamesAsync(CurrentUser.UserId!.Value)).ToHashSet();
+    }
 
     private void Toggle(string interest)
     {
@@ -41,5 +56,11 @@
         saved = false;
     }
 
-    private void Save() => saved = true;
+    private async Task Save()
+    {
+        saving = true;
+        await UserService.SaveUserInterestsAsync(CurrentUser.UserId!.Value, selected);
+        saving = false;
+        saved = true;
+    }
 }

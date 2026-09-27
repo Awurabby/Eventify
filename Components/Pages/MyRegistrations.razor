@@ -1,6 +1,8 @@
 @page "/my-registrations"
 @inject RegistrationService RegistrationService
 @inject EventService EventService
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
 
 <PageTitle>My Registrations — Eventify</PageTitle>
 
@@ -37,17 +39,22 @@
     private List<EventItem> myEvents = [];
 
     protected override async Task OnInitializedAsync()
+{
+    if (!CurrentUser.IsAuthenticated)
     {
-        var events = await EventService.GetEventsAsync();
+        Nav.NavigateTo("/login?returnUrl=/my-registrations");
+        return;
+    }
 
-        myEvents = [];
+    var events = await EventService.GetEventsAsync();
+    myEvents = [];
 
-        foreach (var eventItem in events)
+    foreach (var eventItem in events)
+    {
+        if (await RegistrationService.IsRegisteredAsync(CurrentUser.UserId!.Value, eventItem.Id))
         {
-            if (await RegistrationService.IsRegisteredAsync(1, eventItem.Id))
-            {
-                myEvents.Add(eventItem);
-            }
+            myEvents.Add(eventItem);
         }
     }
+}
 }
