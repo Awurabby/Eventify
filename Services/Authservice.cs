@@ -13,8 +13,17 @@ public class AuthService(IDbContextFactory<EventifyDbContext> dbFactory)
 {
     private readonly PasswordHasher<User> hasher = new();
 
+    // Only these roles can be chosen when signing up.
+    // Admin accounts must be created by the team (for example in the seed data).
+    private static readonly string[] SelfRegisterRoles = ["Student", "Organizer"];
+
     public async Task<(bool Success, string Error)> RegisterAsync(string fullName, string email, string password, string role)
     {
+        if (!SelfRegisterRoles.Contains(role))
+        {
+            return (false, "Please choose Student or Organizer.");
+        }
+
         await using var db = await dbFactory.CreateDbContextAsync();
 
         var exists = await db.Users.AnyAsync(u => u.Email == email);

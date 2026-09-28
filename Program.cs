@@ -42,7 +42,7 @@ builder.Services.AddScoped<AuthService>();   // NEW
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<StubCurrentUserService>();
-builder.Services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<StubCurrentUserService>());
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddScoped<UserService>();
 
