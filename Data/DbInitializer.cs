@@ -24,13 +24,11 @@ public static class DbInitializer
         }
         if (!await db.Users.AnyAsync())
         {
-            db.Users.Add(new User
-                {
-                    Id = 1,
-                    FullName = "Demo Student",
-                    Email = "demo.student@eventify.test",
-                    Role = "Student"
-                });
+            db.Users.AddRange(
+                new User { Id = 1, FullName = "Demo Student", Email = "demo.student@eventify.test", Role = "Student" },
+                new User { Id = 2, FullName = "Ama Serwaa", Email = "ama@eventify.test", Role = "Organizer" },
+                new User { Id = 3, FullName = "Kojo Mensah", Email = "kojo@eventify.test", Role = "Student" },
+                new User { Id = 4, FullName = "Efua Owusu", Email = "efua@eventify.test", Role = "Student" });
 
             await db.SaveChangesAsync();
         }
@@ -141,6 +139,24 @@ public static class DbInitializer
 
             await db.SaveChangesAsync();
         
+        }
+                if (!await db.Registrations.AnyAsync())
+        {
+            var tech = await db.Interests.FirstAsync(i => i.Name == "Technology");
+            var career = await db.Interests.FirstAsync(i => i.Name == "Career");
+
+            db.UserInterests.AddRange(
+                new UserInterest { UserId = 3, InterestId = tech.Id },
+                new UserInterest { UserId = 4, InterestId = career.Id });
+
+            var pastEvent = await db.Events.FirstAsync(e => e.Date < DateTime.Today);
+            var upcomingEvent = await db.Events.FirstAsync(e => e.Date >= DateTime.Today);
+
+            db.Registrations.AddRange(
+                new Registration { UserId = 3, EventId = pastEvent.Id, RegisteredAt = DateTime.UtcNow.AddDays(-10), Attended = true },
+                new Registration { UserId = 4, EventId = upcomingEvent.Id, RegisteredAt = DateTime.UtcNow.AddDays(-1), Attended = false });
+
+            await db.SaveChangesAsync();
         }
     }
 }
