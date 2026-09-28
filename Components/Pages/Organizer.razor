@@ -1,4 +1,6 @@
 @page "/organizer"
+@attribute [Authorize(Roles = "Organizer,Admin")]
+@using Microsoft.AspNetCore.Authorization
 @inject ICurrentUserService CurrentUser
 @inject EventService EventService
 @inject RegistrationService RegistrationService

@@ -1,10 +1,15 @@
 using Eventify.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eventify.Data;
 
 public static class DbInitializer
 {
+    // Demo accounts for local development and the class demo only.
+    // These are fake accounts on a local test database, not real credentials.
+    private const string DemoPassword = "Demo@1234";
+
     public static async Task InitializeAsync(IDbContextFactory<EventifyDbContext> factory)
     {
         await using var db = await factory.CreateDbContextAsync();
@@ -22,18 +27,12 @@ public static class DbInitializer
 
             await db.SaveChangesAsync();
         }
-        if (!await db.Users.AnyAsync())
-        {
-            db.Users.Add(new User
-                {
-                    Id = 1,
-                    FullName = "Demo Student",
-                    Email = "demo.student@eventify.test",
-                    Role = "Student"
-                });
 
-            await db.SaveChangesAsync();
-        }
+        // Creates each demo user if missing, and gives the old Demo Student
+        // a real password if it doesn't have one yet.
+        await EnsureDemoUserAsync(db, "Demo Student", "demo.student@eventify.test", "Student");
+        await EnsureDemoUserAsync(db, "Demo Organizer", "demo.organizer@eventify.test", "Organizer");
+        await EnsureDemoUserAsync(db, "Demo Admin", "demo.admin@eventify.test", "Admin");
 
         if (!await db.Events.AnyAsync())
         {
@@ -71,5 +70,24 @@ public static class DbInitializer
 
             await db.SaveChangesAsync();
         }
+    }
+
+    private static async Task EnsureDemoUserAsync(EventifyDbContext db, string fullName, string email, string role)
+    {
+        var hasher = new PasswordHasher<User>();
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user is null)
+        {
+            user = new User { FullName = fullName, Email = email, Role = role };
+            user.PasswordHash = hasher.HashPassword(user, DemoPassword);
+            db.Users.Add(user);
+        }
+        else if (string.IsNullOrEmpty(user.PasswordHash))
+        {
+            user.PasswordHash = hasher.HashPassword(user, DemoPassword);
+        }
+
+        await db.SaveChangesAsync();
     }
 }

@@ -1,4 +1,6 @@
 @page "/profile"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @inject ICurrentUserService CurrentUser
 @inject UserService UserService
 @inject NavigationManager Nav
