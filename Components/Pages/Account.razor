@@ -1,0 +1,22 @@
+@page "/account"
+@attribute [Authorize]
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Eventify.Components.Layout
+
+<PageTitle>My Account</PageTitle>
+
+<div class="container py-5" style="max-width: 420px;">
+    <h1>My Account</h1>
+
+    <AuthorizeView>
+        <Authorized>
+            <p><strong>Name:</strong> @context.User.Identity?.Name</p>
+            <p><strong>Email:</strong> @context.User.FindFirst(ClaimTypes.Email)?.Value</p>
+            <p><strong>Role:</strong> @context.User.FindFirst(ClaimTypes.Role)?.Value</p>
+        </Authorized>
+    </AuthorizeView>
+
+    <LogoutButton />
+</div>
