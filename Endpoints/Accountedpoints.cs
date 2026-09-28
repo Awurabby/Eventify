@@ -56,6 +56,14 @@ public static class AccountEndpoints
             await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Results.LocalRedirect("/");
         });
+
+        // NEW: same logout, but reachable as a normal link/redirect.
+        // Used by CurrentUserService.LogoutAsync().
+        app.MapGet("/account/logout", async (HttpContext http) =>
+        {
+            await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Results.LocalRedirect("/");
+        });
     }
 
     private static Task SignInUserAsync(HttpContext http, int userId, string fullName, string email, string role)
