@@ -1,6 +1,8 @@
 @page "/my-registrations"
-@inject RegistrationService Registrations
-@inject EventService Events
+@inject RegistrationService RegistrationService
+@inject EventService EventService
+@inject ICurrentUserService CurrentUser
+@inject NavigationManager Nav
 
 <PageTitle>My Registrations — Eventify</PageTitle>
 
@@ -8,7 +10,7 @@
     <h1>My Registrations</h1>
     <p class="text-muted">Events you've registered for.</p>
 
-    @if (!MyEvents.Any())
+    @if (!myEvents.Any())
     {
         <div class="empty-state">
             <h3>No registrations yet</h3>
@@ -19,7 +21,7 @@
     else
     {
         <div class="row g-4">
-            @foreach (var e in MyEvents)
+            @foreach (var e in myEvents)
             {
                 <div class="col-md-6 col-xl-4">
                     <div class="event-card">
@@ -34,6 +36,25 @@
 </div>
 
 @code {
-    private IEnumerable<EventItem> MyEvents => 
-        Events.GetSampleEvents().Where(e => Registrations.IsRegistered("demo-student", e.Id));
+    private List<EventItem> myEvents = [];
+
+    protected override async Task OnInitializedAsync()
+{
+    if (!CurrentUser.IsAuthenticated)
+    {
+        Nav.NavigateTo("/login?returnUrl=/my-registrations");
+        return;
+    }
+
+    var events = await EventService.GetEventsAsync();
+    myEvents = [];
+
+    foreach (var eventItem in events)
+    {
+        if (await RegistrationService.IsRegisteredAsync(CurrentUser.UserId!.Value, eventItem.Id))
+        {
+            myEvents.Add(eventItem);
+        }
+    }
+}
 }

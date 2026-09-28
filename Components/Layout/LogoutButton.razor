@@ -1,0 +1,10 @@
+@inject AntiforgeryStateProvider AntiforgeryStateProvider
+
+<form method="post" action="/account/logout" class="d-inline">
+    <input type="hidden" name="__RequestVerificationToken" value="@GetAntiforgeryToken()" />
+    <button class="btn btn-outline-secondary btn-sm" type="submit">Log out</button>
+</form>
+
+@code {
+    private string? GetAntiforgeryToken() => AntiforgeryStateProvider.GetAntiforgeryToken()?.Value;
+}

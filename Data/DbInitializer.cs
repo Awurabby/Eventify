@@ -8,9 +8,34 @@ public static class DbInitializer
     public static async Task InitializeAsync(IDbContextFactory<EventifyDbContext> factory)
     {
         await using var db = await factory.CreateDbContextAsync();
-        await db.Database.EnsureCreatedAsync();
+        await db.Database.MigrateAsync();
 
-                if (!await db.Events.AnyAsync())
+        if (!await db.Interests.AnyAsync())
+        {
+            db.Interests.AddRange(
+                new Interest { Name = "Technology" },
+                new Interest { Name = "Career" },
+                new Interest { Name = "Sports" },
+                new Interest { Name = "Music" },
+                new Interest { Name = "Entrepreneurship" },
+                new Interest { Name = "Academic" });
+
+            await db.SaveChangesAsync();
+        }
+        if (!await db.Users.AnyAsync())
+        {
+            db.Users.Add(new User
+                {
+                    Id = 1,
+                    FullName = "Demo Student",
+                    Email = "demo.student@eventify.test",
+                    Role = "Student"
+                });
+
+            await db.SaveChangesAsync();
+        }
+
+        if (!await db.Events.AnyAsync())
         {
             db.Events.AddRange(
                 new EventItem
