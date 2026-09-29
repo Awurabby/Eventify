@@ -13,7 +13,10 @@ public static class DbInitializer
     public static async Task InitializeAsync(IDbContextFactory<EventifyDbContext> factory)
     {
         await using var db = await factory.CreateDbContextAsync();
-        await db.Database.MigrateAsync();
+        if (db.Database.IsNpgsql())
+            await db.Database.EnsureCreatedAsync();
+        else
+            await db.Database.MigrateAsync();
 
         if (!await db.Interests.AnyAsync())
         {

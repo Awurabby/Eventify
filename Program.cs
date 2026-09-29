@@ -25,14 +25,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
     ?? "Data Source=eventify.db";
+
+var usingPostgres = connectionString.Contains("Host=") || connectionString.StartsWith("postgres");
 
 builder.Services.AddDbContextFactory<EventifyDbContext>(options =>
 {
-    // SQLite is the default for fast local development.
-    // The provider can be switched to SQL Server in one place when the team is ready.
-    options.UseSqlite(connectionString);
+    if (usingPostgres)
+        options.UseNpgsql(connectionString);
+    else
+        options.UseSqlite(connectionString);
 });
 
 builder.Services.AddScoped<EventService>();
