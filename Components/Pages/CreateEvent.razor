@@ -1,5 +1,7 @@
 @using System.ComponentModel.DataAnnotations
 @page "/organizer/create"
+@attribute [Authorize(Roles = "Organizer,Admin")]
+@using Microsoft.AspNetCore.Authorization
 @inject ICurrentUserService CurrentUser
 @inject EventService EventService
 @inject NavigationManager Nav

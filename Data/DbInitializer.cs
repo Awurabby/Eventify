@@ -1,10 +1,15 @@
 using Eventify.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eventify.Data;
 
 public static class DbInitializer
 {
+    // Demo accounts for local development and the class demo only.
+    // These are fake accounts on a local test database, not real credentials.
+    private const string DemoPassword = "Demo@1234";
+
     public static async Task InitializeAsync(IDbContextFactory<EventifyDbContext> factory)
     {
         await using var db = await factory.CreateDbContextAsync();
@@ -24,14 +29,27 @@ public static class DbInitializer
         }
         if (!await db.Users.AnyAsync())
         {
-            db.Users.AddRange(
-                new User { Id = 1, FullName = "Demo Student", Email = "demo.student@eventify.test", Role = "Student" },
-                new User { Id = 2, FullName = "Ama Serwaa", Email = "ama@eventify.test", Role = "Organizer" },
-                new User { Id = 3, FullName = "Kojo Mensah", Email = "kojo@eventify.test", Role = "Student" },
-                new User { Id = 4, FullName = "Efua Owusu", Email = "efua@eventify.test", Role = "Student" });
+            var hasher = new PasswordHasher<User>();
 
+            var demoStudent = new User { Id = 1, FullName = "Demo Student", Email = "demo.student@eventify.test", Role = "Student" };
+            var ama = new User { Id = 2, FullName = "Ama Serwaa", Email = "ama@eventify.test", Role = "Organizer" };
+            var kojo = new User { Id = 3, FullName = "Kojo Mensah", Email = "kojo@eventify.test", Role = "Student" };
+            var efua = new User { Id = 4, FullName = "Efua Owusu", Email = "efua@eventify.test", Role = "Student" };
+
+            foreach (var user in new[] { demoStudent, ama, kojo, efua })
+            {
+                user.PasswordHash = hasher.HashPassword(user, DemoPassword);
+            }
+
+            db.Users.AddRange(demoStudent, ama, kojo, efua);
             await db.SaveChangesAsync();
         }
+
+        // Creates additional demo accounts if missing, and backfills a password
+        // for the original Demo Student if it somehow doesn't have one yet.
+        await EnsureDemoUserAsync(db, "Demo Student", "demo.student@eventify.test", "Student");
+        await EnsureDemoUserAsync(db, "Demo Organizer", "demo.organizer@eventify.test", "Organizer");
+        await EnsureDemoUserAsync(db, "Demo Admin", "demo.admin@eventify.test", "Admin");
 
         if (!await db.Events.AnyAsync())
         {
@@ -158,5 +176,24 @@ public static class DbInitializer
 
             await db.SaveChangesAsync();
         }
+    }
+
+    private static async Task EnsureDemoUserAsync(EventifyDbContext db, string fullName, string email, string role)
+    {
+        var hasher = new PasswordHasher<User>();
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user is null)
+        {
+            user = new User { FullName = fullName, Email = email, Role = role };
+            user.PasswordHash = hasher.HashPassword(user, DemoPassword);
+            db.Users.Add(user);
+        }
+        else if (string.IsNullOrEmpty(user.PasswordHash))
+        {
+            user.PasswordHash = hasher.HashPassword(user, DemoPassword);
+        }
+
+        await db.SaveChangesAsync();
     }
 }
