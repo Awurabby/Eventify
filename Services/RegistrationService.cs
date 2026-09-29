@@ -66,5 +66,15 @@ public class RegistrationService
         return await db.Registrations.CountAsync(r => r.EventId == eventId);
     }
 
-    
+        public async Task<int> GetUserRegistrationCountAsync(int userId)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        return await db.Registrations.CountAsync(r => r.UserId == userId);
+    }
+
+    public async Task<int> GetUserAttendedCountAsync(int userId)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        return await db.Registrations.CountAsync(r => r.UserId == userId && r.Attended);
+    }
 }

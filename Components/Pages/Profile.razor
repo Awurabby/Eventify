@@ -1,33 +1,61 @@
+@using Eventify.Models
 @page "/profile"
-@attribute [Authorize]
-@using Microsoft.AspNetCore.Authorization
 @inject ICurrentUserService CurrentUser
 @inject UserService UserService
+@inject RegistrationService RegistrationService
 @inject NavigationManager Nav
 
-<PageTitle>My Interests — Eventify</PageTitle>
+<PageTitle>My Profile — Eventify</PageTitle>
 
-<div class="container page-container">
-    <h1>My Interests</h1>
-    <p class="text-muted">These interests will drive your event recommendations.</p>
-
-    <div class="interest-grid">
-        @foreach (var interest in allInterests)
-        {
-            <button class="interest-pill @(selected.Contains(interest) ? "selected" : "")"
-                    @onclick="() => Toggle(interest)">
-                @(selected.Contains(interest) ? "✓ " : "")@interest
-            </button>
-        }
-    </div>
-
-    <button class="btn btn-dark mt-4" @onclick="Save" disabled="@saving">
-        @(saving ? "Saving..." : "Save interests")
-    </button>
-
-    @if (saved)
+<div class="container page-container" style="max-width:720px;">
+    @if (loading)
     {
-        <div class="alert alert-success mt-3">Interests saved.</div>
+        <p class="text-muted">Loading profile...</p>
+    }
+    else if (user is not null)
+    {
+        <div class="detail-card profile-header">
+            <div class="avatar-circle">@initials</div>
+            <div>
+                <h1 class="mb-0">@user.FullName</h1>
+                <p class="text-muted mb-2">@user.Email</p>
+                <span class="event-tag">@user.Role</span>
+            </div>
+        </div>
+
+        <div class="row g-3 my-4">
+            <div class="col-6 col-md-4"><div class="stat-card"><span>Registered</span><strong>@registrationCount</strong></div></div>
+            <div class="col-6 col-md-4"><div class="stat-card"><span>Attended</span><strong>@attendedCount</strong></div></div>
+            <div class="col-6 col-md-4"><div class="stat-card"><span>Interests</span><strong>@selected.Count</strong></div></div>
+        </div>
+
+        <div class="detail-card">
+            <h3>My Interests</h3>
+            <p class="text-muted">These drive your event recommendations.</p>
+
+            <div class="interest-grid">
+                @foreach (var interest in allInterests)
+                {
+                    <button class="interest-pill @(selected.Contains(interest) ? "selected" : "")"
+                            @onclick="() => Toggle(interest)">
+                        @(selected.Contains(interest) ? "✓ " : "")@interest
+                    </button>
+                }
+            </div>
+
+            <button class="btn btn-dark mt-4" @onclick="Save" disabled="@saving">
+                @(saving ? "Saving..." : "Save interests")
+            </button>
+
+            @if (saved)
+            {
+                <div class="alert alert-success mt-3">Interests saved.</div>
+            }
+        </div>
+
+        <div class="text-center mt-4">
+            <a class="btn btn-outline-dark" href="/my-registrations">View my registrations</a>
+        </div>
     }
 </div>
 
@@ -35,7 +63,12 @@
     private readonly string[] allInterests =
         ["Technology", "Career", "Sports", "Music", "Entrepreneurship", "Academic"];
 
+    private User? user;
     private HashSet<string> selected = [];
+    private int registrationCount;
+    private int attendedCount;
+    private string initials = "";
+    private bool loading = true;
     private bool saved;
     private bool saving;
 
@@ -47,7 +80,19 @@
             return;
         }
 
-        selected = (await UserService.GetUserInterestNamesAsync(CurrentUser.UserId!.Value)).ToHashSet();
+        var userId = CurrentUser.UserId!.Value;
+
+        user = await UserService.GetUserAsync(userId);
+        selected = (await UserService.GetUserInterestNamesAsync(userId)).ToHashSet();
+        registrationCount = await RegistrationService.GetUserRegistrationCountAsync(userId);
+        attendedCount = await RegistrationService.GetUserAttendedCountAsync(userId);
+
+        initials = string.Concat((user?.FullName ?? "?")
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2)
+            .Select(w => char.ToUpper(w[0])));
+
+        loading = false;
     }
 
     private void Toggle(string interest)

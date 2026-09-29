@@ -40,4 +40,9 @@ public class UserService
 
         await db.SaveChangesAsync();
     }
+        public async Task<User?> GetUserAsync(int userId)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        return await db.Users.FindAsync(userId);
+    }
 }
