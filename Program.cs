@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Eventify.Components;
 using Eventify.Data;
 using Eventify.Endpoints;
@@ -47,6 +48,15 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
+
+// Render (and most free hosts) terminate HTTPS at their edge and forward
+// plain HTTP to the container — this tells the app to trust that and treat
+// the connection as secure, avoiding a redirect loop.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 
 if (!app.Environment.IsDevelopment())
 {
