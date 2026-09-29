@@ -1,4 +1,6 @@
 @page "/my-registrations"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @inject RegistrationService RegistrationService
 @inject EventService EventService
 @inject ICurrentUserService CurrentUser
