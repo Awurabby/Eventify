@@ -44,15 +44,28 @@ public static class DbInitializer
                 user.PasswordHash = hasher.HashPassword(user, DemoPassword);
             }
 
-            db.Users.AddRange(demoStudent, ama, kojo, efua);
-            await db.SaveChangesAsync();
-        }
+          db.Users.AddRange(demoStudent, ama, kojo, efua);
+          await db.SaveChangesAsync();
+}
 
-        // Creates additional demo accounts if missing, and backfills a password
-        // for the original Demo Student if it somehow doesn't have one yet.
-        await EnsureDemoUserAsync(db, "Demo Student", "demo.student@eventify.test", "Student");
-        await EnsureDemoUserAsync(db, "Demo Organizer", "demo.organizer@eventify.test", "Organizer");
-        await EnsureDemoUserAsync(db, "Demo Admin", "demo.admin@eventify.test", "Admin");
+         // PostgreSQL needs its automatic User ID counter synchronized
+         // because the demo users above use manually assigned IDs.
+        if (db.Database.IsNpgsql())
+        {
+            await db.Database.ExecuteSqlRawAsync("""
+                SELECT setval(
+                    pg_get_serial_sequence('"Users"', 'Id'),
+                    COALESCE((SELECT MAX("Id") FROM "Users"), 1),
+                    true
+            );
+            """);
+}
+
+// Creates additional demo accounts if missing, and backfills a password
+// for the original Demo Student if it somehow doesn't have one yet.
+await EnsureDemoUserAsync(db, "Demo Student", "demo.student@eventify.test", "Student");
+await EnsureDemoUserAsync(db, "Demo Organizer", "demo.organizer@eventify.test", "Organizer");
+await EnsureDemoUserAsync(db, "Demo Admin", "demo.admin@eventify.test", "Admin");
 
         if (!await db.Events.AnyAsync())
         {
@@ -62,7 +75,7 @@ public static class DbInitializer
                     Title = "Campus Tech Meetup",
                     Description = "A practical session on modern software development and technology careers.",
                     Category = "Technology",
-                    Date = DateTime.Today.AddDays(3),
+                    Date = DateTime.UtcNow.Date.AddDays(3),
                     Location = "New Lecture Theatre",
                     Organizer = "Computing Society",
                     Capacity = 120
@@ -72,7 +85,7 @@ public static class DbInitializer
                     Title = "Career Development Workshop",
                     Description = "CV, interview and internship preparation for university students.",
                     Category = "Career",
-                    Date = DateTime.Today.AddDays(6),
+                    Date = DateTime.UtcNow.Date.AddDays(6),
                     Location = "Business School Auditorium",
                     Organizer = "Career Services",
                     Capacity = 200
@@ -82,7 +95,7 @@ public static class DbInitializer
                     Title = "Student Entrepreneurship Forum",
                     Description = "Meet student founders and learn how campus ideas become real ventures.",
                     Category = "Entrepreneurship",
-                    Date = DateTime.Today.AddDays(9),
+                    Date = DateTime.UtcNow.Date.AddDays(9),
                     Location = "Innovation Hub",
                     Organizer = "Entrepreneurship Club",
                     Capacity = 150
@@ -92,7 +105,7 @@ public static class DbInitializer
                     Title = "Inter-Hall Football Finals",
                     Description = "Championship match between the top two halls this season.",
                     Category = "Sports",
-                    Date = DateTime.Today.AddDays(12),
+                    Date = DateTime.UtcNow.Date.AddDays(12),
                     Location = "Legon Sports Stadium",
                     Organizer = "Sports Directorate",
                     Capacity = 2000
@@ -102,7 +115,7 @@ public static class DbInitializer
                     Title = "Basketball 3v3 Tournament",
                     Description = "Fast-paced 3v3 tournament open to all students.",
                     Category = "Sports",
-                    Date = DateTime.Today.AddDays(-2),
+                    Date = DateTime.UtcNow.Date.AddDays(-2),
                     Location = "Indoor Sports Complex",
                     Organizer = "Sports Directorate",
                     Capacity = 120
@@ -112,7 +125,7 @@ public static class DbInitializer
                     Title = "Acoustic Night at the Quad",
                     Description = "Live acoustic performances from student musicians.",
                     Category = "Music",
-                    Date = DateTime.Today.AddDays(4),
+                    Date = DateTime.UtcNow.Date.AddDays(4),
                     Location = "Central Quad",
                     Organizer = "Music Society",
                     Capacity = 300
@@ -122,7 +135,7 @@ public static class DbInitializer
                     Title = "Mid-Semester Research Symposium",
                     Description = "Undergraduate and graduate students present ongoing research.",
                     Category = "Academic",
-                    Date = DateTime.Today.AddDays(-10),
+                    Date = DateTime.UtcNow.Date.AddDays(-10),
                     Location = "Jones Quartey Building",
                     Organizer = "Office of Research and Innovation",
                     Capacity = 250
@@ -132,7 +145,7 @@ public static class DbInitializer
                     Title = "AI & Machine Learning Workshop",
                     Description = "Intro to practical ML with hands-on coding exercises.",
                     Category = "Technology",
-                    Date = DateTime.Today.AddDays(20),
+                    Date = DateTime.UtcNow.Date.AddDays(20),
                     Location = "Computer Science Dept. Lab 2",
                     Organizer = "Computing Society",
                     Capacity = 80
@@ -142,7 +155,7 @@ public static class DbInitializer
                     Title = "Resume & LinkedIn Clinic",
                     Description = "One-on-one resume reviews and LinkedIn profile optimization.",
                     Category = "Career",
-                    Date = DateTime.Today.AddDays(-5),
+                    Date = DateTime.UtcNow.Date.AddDays(-5),
                     Location = "Career Services Centre",
                     Organizer = "Career Services",
                     Capacity = 60
@@ -152,7 +165,7 @@ public static class DbInitializer
                     Title = "Pitch Deck Teardown Session",
                     Description = "Get live feedback on your startup pitch deck from mentors.",
                     Category = "Entrepreneurship",
-                    Date = DateTime.Today.AddDays(15),
+                    Date = DateTime.UtcNow.Date.AddDays(15),
                     Location = "Innovation Hub",
                     Organizer = "Entrepreneurship Club",
                     Capacity = 50
@@ -170,8 +183,8 @@ public static class DbInitializer
                 new UserInterest { UserId = 3, InterestId = tech.Id },
                 new UserInterest { UserId = 4, InterestId = career.Id });
 
-            var pastEvent = await db.Events.FirstAsync(e => e.Date < DateTime.Today);
-            var upcomingEvent = await db.Events.FirstAsync(e => e.Date >= DateTime.Today);
+            var pastEvent = await db.Events.FirstAsync(e => e.Date < DateTime.UtcNow.Date);
+            var upcomingEvent = await db.Events.FirstAsync(e => e.Date >= DateTime.UtcNow.Date);
 
             db.Registrations.AddRange(
                 new Registration { UserId = 3, EventId = pastEvent.Id, RegisteredAt = DateTime.UtcNow.AddDays(-10), Attended = true },
