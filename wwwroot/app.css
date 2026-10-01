@@ -264,3 +264,224 @@ body {
 @media (max-width: 576px) {
     .profile-header { flex-direction: column; text-align: center; }
 }
+/* =====================================================
+   FINAL RESPONSIVE SIDEBAR
+   Desktop: collapsible
+   Mobile: slide-over
+   ===================================================== */
+
+/* Hamburger button is available on all screen sizes */
+
+.menu-button {
+    border: none;
+    background: transparent;
+    color: #111827;
+    font-size: 1.6rem;
+    line-height: 1;
+    padding: 6px 9px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.menu-button:hover {
+    background: #f3f4f6;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+/* =========================
+   DESKTOP
+   ========================= */
+
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    transform: translateX(0);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+    z-index: 1001;
+    overflow-y: auto;
+}
+
+.main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+
+    transition:
+        margin-left 0.25s ease,
+        width 0.25s ease;
+}
+
+
+/* Desktop collapsed state */
+
+.app-shell.sidebar-toggled .sidebar {
+    transform: translateX(-100%);
+}
+
+.app-shell.sidebar-toggled .main-content {
+    margin-left: 0;
+    width: 100%;
+}
+
+
+/* No dark overlay on desktop */
+
+.sidebar-overlay {
+    display: none;
+}
+
+
+/* =========================
+   MOBILE / TABLET
+   ========================= */
+
+@media (max-width: 768px) {
+
+    /*
+       On mobile the default state is hidden,
+       regardless of the desktop rules.
+    */
+
+    .sidebar {
+        width: min(280px, 85vw);
+
+        transform: translateX(-100%);
+
+        box-shadow: 8px 0 25px rgba(0, 0, 0, 0.20);
+    }
+
+
+    /*
+       When toggled on mobile,
+       sidebar slides INTO view.
+    */
+
+    .app-shell.sidebar-toggled .sidebar {
+        transform: translateX(0);
+    }
+
+
+    /*
+       Main content always uses full screen
+       on mobile.
+    */
+
+    .main-content,
+    .app-shell.sidebar-toggled .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+
+    /*
+       Dark background behind open menu
+    */
+
+    .sidebar-overlay {
+        display: block;
+
+        position: fixed;
+        inset: 0;
+
+        width: 100%;
+        height: 100%;
+
+        border: 0;
+        padding: 0;
+
+        background: rgba(0, 0, 0, 0.45);
+
+        z-index: 1000;
+    }
+
+
+    /* Mobile spacing */
+
+    .topbar {
+        padding: 0 16px;
+    }
+
+    .page-content {
+        padding: 16px;
+    }
+
+    .page-container {
+        padding: 16px;
+    }
+
+    .hero-card {
+        padding: 24px;
+    }
+
+    .hero-icon {
+        display: none;
+    }
+
+    .filter-bar,
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .detail-card h1 {
+        font-size: 1.9rem;
+    }
+}
+
+
+/* =========================
+   SMALL PHONES
+   ========================= */
+
+@media (max-width: 480px) {
+
+    .topbar {
+        height: 60px;
+        padding: 0 12px;
+    }
+
+    .topbar-brand {
+        font-size: 0.9rem;
+    }
+
+    .page-content {
+        padding: 10px;
+    }
+
+    .page-container {
+        padding: 10px;
+    }
+
+    .event-card,
+    .detail-card,
+    .stat-card,
+    .empty-state {
+        padding: 16px;
+    }
+
+    .hero-card {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .detail-card h1 {
+        font-size: 1.65rem;
+    }
+}

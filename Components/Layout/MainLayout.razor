@@ -2,7 +2,7 @@
 @inject ICurrentUserService CurrentUser
 @inject NavigationManager Nav
 
-<div class="app-shell">
+<div class="app-shell @(sidebarToggled ? "sidebar-toggled" : "")">
 
     <aside class="sidebar">
 
@@ -15,51 +15,92 @@
 
         <nav class="nav flex-column">
 
-            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+            <NavLink class="nav-link"
+                     href="/"
+                     Match="NavLinkMatch.All"
+                     @onclick="CloseMobileMenu">
                 <span>Dashboard</span>
             </NavLink>
 
-            <NavLink class="nav-link" href="/events">
+            <NavLink class="nav-link"
+                     href="/events"
+                     @onclick="CloseMobileMenu">
                 <span>Discover Events</span>
             </NavLink>
 
-            <NavLink class="nav-link" href="/my-registrations">
+            <NavLink class="nav-link"
+                     href="/my-registrations"
+                     @onclick="CloseMobileMenu">
                 <span>My Registrations</span>
             </NavLink>
 
-            <NavLink class="nav-link" href="/profile">
+            <NavLink class="nav-link"
+                     href="/profile"
+                     @onclick="CloseMobileMenu">
                 <span>My Profile</span>
             </NavLink>
 
             @if (CurrentUser.Role == "Organizer")
-{
-    <NavLink class="nav-link" href="/organizer"><span>Organizer</span></NavLink>
-}
+            {
+                <NavLink class="nav-link"
+                         href="/organizer"
+                         @onclick="CloseMobileMenu">
+                    <span>Organizer</span>
+                </NavLink>
+            }
+
             @if (CurrentUser.IsAuthenticated)
-{
-    <a class="nav-link" href="#" @onclick="Logout" @onclick:preventDefault>
-        <span>Log out (@CurrentUser.DisplayName)</span>
-    </a>
-}
-else
-{
-    <NavLink class="nav-link" href="/login"><span>Log In</span></NavLink>
-    <NavLink class="nav-link" href="/register"><span>Sign Up</span></NavLink>
-}
+            {
+                <a class="nav-link"
+                   href="#"
+                   @onclick="Logout"
+                   @onclick:preventDefault>
+                    <span>Log out (@CurrentUser.DisplayName)</span>
+                </a>
+            }
+            else
+            {
+                <NavLink class="nav-link"
+                         href="/login"
+                         @onclick="CloseMobileMenu">
+                    <span>Log In</span>
+                </NavLink>
+
+                <NavLink class="nav-link"
+                         href="/register"
+                         @onclick="CloseMobileMenu">
+                    <span>Sign Up</span>
+                </NavLink>
+            }
 
         </nav>
 
     </aside>
 
+    @if (sidebarToggled)
+    {
+        <button class="sidebar-overlay"
+                @onclick="ToggleSidebar"
+                aria-label="Close navigation">
+        </button>
+    }
 
     <main class="main-content">
 
         <header class="topbar">
 
-            <div>
+            <div class="topbar-left">
+
+                <button class="menu-button"
+                        @onclick="ToggleSidebar"
+                        aria-label="Toggle navigation">
+                    ☰
+                </button>
+
                 <span class="text-muted">
                     University of Ghana
                 </span>
+
             </div>
 
             <div class="topbar-brand">
@@ -68,11 +109,8 @@ else
 
         </header>
 
-
         <section class="page-content">
-
             @Body
-
         </section>
 
     </main>
@@ -80,9 +118,25 @@ else
 </div>
 
 @code {
+
+    private bool sidebarToggled = false;
+
+    private void ToggleSidebar()
+    {
+        sidebarToggled = !sidebarToggled;
+    }
+
+    private void CloseMobileMenu()
+    {
+        sidebarToggled = false;
+    }
+
     private async Task Logout()
     {
+        sidebarToggled = false;
+
         await CurrentUser.LogoutAsync();
+
         Nav.NavigateTo("/");
     }
 }
